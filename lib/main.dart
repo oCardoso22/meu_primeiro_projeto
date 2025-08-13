@@ -7,116 +7,166 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      title: 'Carrossel de Formulários',
+      debugShowCheckedModeBanner: false,
+      home: const FormCarouselPage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class FormData {
+  String nomeCompleto;
+  DateTime? dataNascimento;
+  String sexo;
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  FormData({
+    this.nomeCompleto = '',
+    this.dataNascimento,
+    this.sexo = '',
+  });
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class FormCarouselPage extends StatefulWidget {
+  const FormCarouselPage({super.key});
 
-  void _incrementCounter() {
+  @override
+  State<FormCarouselPage> createState() => _FormCarouselPageState();
+}
+
+class _FormCarouselPageState extends State<FormCarouselPage> {
+  final PageController _pageController = PageController();
+  final List<FormData> _forms = [FormData()];
+  int _currentIndex = 0;
+
+  void _addNewForm() {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      _forms.add(FormData());
+      _currentIndex = _forms.length - 1;
     });
+    _pageController.animateToPage(_currentIndex, duration: const Duration(milliseconds: 300), curve: Curves.ease);
+  }
+
+  void _updateForm(int index, String field, dynamic value) {
+    setState(() {
+      switch (field) {
+        case 'nome':
+          _forms[index].nomeCompleto = value;
+          break;
+        case 'data':
+          _forms[index].dataNascimento = value;
+          break;
+        case 'sexo':
+          _forms[index].sexo = value;
+          break;
+      }
+    });
+  }
+
+  Future<void> _selectDate(int index) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _forms[index].dataNascimento ?? DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) {
+      _updateForm(index, 'data', picked);
+    }
+  }
+
+  String _formatDate(DateTime? date) {
+    if (date == null) return 'Selecionar data';
+    return '${date.day}/${date.month}/${date.year}';
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: const Text('Formulários'),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+      body: Column(
+        children: [
+          Text('${_currentIndex + 1} de ${_forms.length}'),
+
+          Expanded(
+            child: PageView.builder(
+              controller: _pageController,
+              onPageChanged: (index) => setState(() => _currentIndex = index),
+              itemCount: _forms.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      Text('Pessoa ${index + 1}', style: const TextStyle(fontSize: 20)),
+                      const SizedBox(height: 20),
+
+                      TextField(
+                        onChanged: (value) => _updateForm(index, 'nome', value),
+                        decoration: const InputDecoration(labelText: 'Nome Completo'),
+                      ),
+                      const SizedBox(height: 16),
+
+                      GestureDetector(
+                        onTap: () => _selectDate(index),
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(border: Border.all()),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(_formatDate(_forms[index].dataNascimento)),
+                              const Icon(Icons.calendar_today),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      DropdownButton<String>(
+                        value: _forms[index].sexo.isEmpty ? null : _forms[index].sexo,
+                        hint: const Text('Selecione o sexo'),
+                        isExpanded: true,
+                        onChanged: (value) => _updateForm(index, 'sexo', value ?? ''),
+                        items: const [
+                          DropdownMenuItem(value: 'Homem', child: Text('Homem')),
+                          DropdownMenuItem(value: 'Mulher', child: Text('Mulher')),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
-          ],
-        ),
+          ),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              _forms.length,
+                  (index) => Container(
+                margin: const EdgeInsets.all(4),
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: _currentIndex == index ? Colors.blue : Colors.grey,
+                ),
+              ),
+            ),
+          ),
+
+          ElevatedButton(
+            onPressed: _addNewForm,
+            child: const Text('Adicionar'),
+          ),
+          const SizedBox(height: 16),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
