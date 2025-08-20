@@ -56,7 +56,7 @@ class HomeScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/detalhes', arguments: {
-                  'nome': 'João Silva Santos',
+                  'nome': 'Rodrigo Silva Santos',
                   'nascimento': '18/10/2004',
                   'telefone': '(55) 99999-9999'
                 });
