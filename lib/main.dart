@@ -27,7 +27,7 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = [
     Module1Screen(),
-    Module2Screen(), // Este terá a TabBar
+    Module2Screen(),
     Module3Screen(),
   ];
 
@@ -92,8 +92,6 @@ class Module1Screen extends StatelessWidget {
     );
   }
 }
-
-// Módulo 2 - Com TabBar aninhada
 class Module2Screen extends StatefulWidget {
   @override
   _Module2ScreenState createState() => _Module2ScreenState();
@@ -149,8 +147,6 @@ class _Module2ScreenState extends State<Module2Screen>
     );
   }
 }
-
-// Conteúdo da Tab 1
 class Tab1Content extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -167,8 +163,6 @@ class Tab1Content extends StatelessWidget {
     );
   }
 }
-
-// Conteúdo da Tab 2
 class Tab2Content extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -206,8 +200,6 @@ class Tab2Content extends StatelessWidget {
     );
   }
 }
-
-// Conteúdo da Tab 3
 class Tab3Content extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -271,8 +263,6 @@ class Tab3Content extends StatelessWidget {
     );
   }
 }
-
-// Módulo 3 - Tela simples
 class Module3Screen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
